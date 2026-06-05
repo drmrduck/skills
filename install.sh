@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# install.sh — pull DrummerDuck skills into Claude Code.
+# install.sh — pull drmrduck skills into Claude Code.
 #
 # Usage:
 #   install.sh <skill|all> [--here]
@@ -10,11 +10,11 @@
 #             Default is ~/.claude/skills (every project on this machine).
 #
 # Works whether run from a clone or piped from curl:
-#   curl -fsSL https://raw.githubusercontent.com/DrummerDuck/skills/main/install.sh | bash -s favicon
+#   curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicon
 #
 set -euo pipefail
 
-REPO="DrummerDuck/skills"
+REPO="drmrduck/skills"
 RAW="https://raw.githubusercontent.com/$REPO/main"
 TARBALL="https://github.com/$REPO/archive/refs/heads/main.tar.gz"
 

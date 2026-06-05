@@ -103,3 +103,11 @@ After patching, **delete or replace** any pre-existing `favicon.ico` /
 - The API rasterizes SVG sources server-side, so vector logos and Iconify icons
   come out crisp at every size.
 - Requires `curl`, `unzip`, and either `python3` or `jq` (for JSON parsing).
+
+## Provenance
+- Generation API: `POST https://favicontools.com/api/favicons` (public, no auth).
+- Icon/emoji lookup: Iconify — `https://api.iconify.design/<prefix>/<name>.svg`
+  (public). Browse names at https://icon-sets.iconify.design.
+- Built from the **private** source project `mewc/favicon-generator`
+  (https://github.com/mewc/favicon-generator). This skill uses only the public
+  website API above — it contains no private source.
