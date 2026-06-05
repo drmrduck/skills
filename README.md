@@ -12,7 +12,7 @@ them in) instead of a human clicking a UI, downloading a zip, and shuffling file
 
 | Skill | What it does |
 | --- | --- |
-| [`favicon`](./favicon) | Generate + install a complete favicon / app-icon / PWA stack (ico, all PNG sizes, apple-touch, theme-aware, env badges, manifest) from an emoji, named icon, logo file, or URL — written straight into the project. Powered by [favicontools.com](https://favicontools.com). |
+| [`favicontools.com`](./favicontools.com) | Generate + install a complete favicon / app-icon / PWA stack (ico, all PNG sizes, apple-touch, theme-aware, env badges, manifest) from an emoji, named icon, logo file, or URL — written straight into the project. Powered by [favicontools.com](https://favicontools.com). |
 
 ## Pull it in anywhere
 
@@ -26,10 +26,10 @@ Claude Code, drop the folder into a skills directory:
 
 ```bash
 # Install one skill globally (available in every project on this machine)
-curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicon
+curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicontools.com
 
 # Install into the current project only
-curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicon --here
+curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicontools.com --here
 
 # Install everything, globally
 curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s all
@@ -39,7 +39,7 @@ curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | b
 
 ```bash
 git clone https://github.com/drmrduck/skills ~/.drmrduck-skills
-ln -s ~/.drmrduck-skills/favicon ~/.claude/skills/favicon
+ln -s ~/.drmrduck-skills/favicontools.com ~/.claude/skills/favicontools.com
 ```
 
 Restart Claude Code (or `/doctor`) and the skill is live — just ask, e.g.
@@ -63,4 +63,4 @@ Where each skill's capability comes from, and what's public vs. private:
 
 | Skill | Public surface it uses | Source project |
 | --- | --- | --- |
-| `favicon` | [favicontools.com](https://favicontools.com) — public API `POST https://favicontools.com/api/favicons`; icon/emoji lookup via [Iconify](https://icon-sets.iconify.design) (`https://api.iconify.design`) | `mewc/favicon-generator` — **private** (https://github.com/mewc/favicon-generator). The skill calls only the public website API; no private source is included. |
+| `favicontools.com` | [favicontools.com](https://favicontools.com) — public API `POST https://favicontools.com/api/favicons`; icon/emoji lookup via [Iconify](https://icon-sets.iconify.design) (`https://api.iconify.design`) | `mewc/favicon-generator` — **private** (https://github.com/mewc/favicon-generator). The skill calls only the public website API; no private source is included. |

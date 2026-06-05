@@ -5,12 +5,12 @@
 # Usage:
 #   install.sh <skill|all> [--here]
 #
-#   <skill>   Name of a skill folder in this repo (e.g. favicon), or "all".
+#   <skill>   Name of a skill folder in this repo (e.g. favicontools.com), or "all".
 #   --here    Install into ./.claude/skills (this project only).
 #             Default is ~/.claude/skills (every project on this machine).
 #
 # Works whether run from a clone or piped from curl:
-#   curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicon
+#   curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s favicontools.com
 #
 set -euo pipefail
 
@@ -28,7 +28,7 @@ mkdir -p "$SCOPE"
 # Source skills from a local clone if present, else fetch the tarball.
 SRC=""
 SELF_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
-if [ -n "$SELF_DIR" ] && [ -f "$SELF_DIR/install.sh" ] && [ -d "$SELF_DIR/favicon" ]; then
+if [ -n "$SELF_DIR" ] && [ -f "$SELF_DIR/install.sh" ] && [ -d "$SELF_DIR/favicontools.com" ]; then
   SRC="$SELF_DIR"
 else
   TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
