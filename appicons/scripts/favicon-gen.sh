@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 #
-# favicon-gen.sh — agent-first favicon stack generator.
+# favicon-gen.sh — agent-first favicon / app-icon stack generator.
 #
 # Resolves a source (local file | image URL | Iconify icon/emoji name) into a
-# complete favicon package via favicontools.com and writes the files straight
-# into your project. No browser, no zip download, no manual unzip.
+# complete favicon + app-icon + PWA-icon package via favicontools.com and writes
+# the files straight into your project. No browser, no zip download, no manual
+# unzip.
+#
+# By default it pulls back the full per-stage set: a clean production icon plus
+# badged staging/dev variants, theme-aware light/dark favicons, and a stage-aware
+# <head> snippet that renders the right icon + manifest per environment.
 #
 # Usage:
 #   favicon-gen.sh --source <file|url|iconify-name> [options]
@@ -22,10 +27,10 @@
 #   --out <dir>        Output directory (default: ./public)
 #   --bg <none|white|black>        Background fill (default: none)
 #   --shape <square|circular>      Background shape (default: square)
-#   --variant <none|badge|color>   Corner variant overlay (default: none)
+#   --variant <none|badge|color>   Per-stage variant overlay (default: badge)
 #   --primary <#hex>               Primary color for color/badge variants
-#   --badges           Include dev/staging environment badge variants
-#   --theme-aware      Include light/dark theme-aware 16x16 favicons
+#   --no-badges        Single production icon only — skip dev/staging variants
+#   --no-theme-aware   Skip the light/dark theme-aware 16x16 favicons
 #   --api <url>        Override API endpoint (default: $FAVICON_API or favicontools.com)
 #   -h, --help         Show this help
 #
@@ -34,8 +39,9 @@ set -euo pipefail
 API="${FAVICON_API:-https://favicontools.com/api/favicons}"
 OUT="./public"
 SOURCE=""
-BG="none"; SHAPE="square"; VARIANT="none"; PRIMARY=""
-THEME="false"; BADGES="false"
+BG="none"; SHAPE="square"; VARIANT="badge"; PRIMARY=""
+# Default ON: pull back per-stage variants + theme-aware favicons.
+THEME="true"; BADGES="true"
 
 die() { echo "favicon-gen: $*" >&2; exit 1; }
 
@@ -48,9 +54,11 @@ while [ $# -gt 0 ]; do
     --variant) VARIANT="${2:-}"; shift 2;;
     --primary) PRIMARY="${2:-}"; shift 2;;
     --badges) BADGES="true"; shift;;
+    --no-badges) BADGES="false"; VARIANT="none"; shift;;
     --theme-aware) THEME="true"; shift;;
+    --no-theme-aware) THEME="false"; shift;;
     --api) API="${2:-}"; shift 2;;
-    -h|--help) sed -n '2,40p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
+    -h|--help) sed -n '2,46p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
     *) die "unknown argument: $1 (try --help)";;
   esac
 done
@@ -125,20 +133,44 @@ extract_zip_b64 < "$TMP/resp.json" | base64 -d > "$TMP/favicons.zip"
 [ -s "$TMP/favicons.zip" ] || die "empty package returned"
 unzip -o -q "$TMP/favicons.zip" -d "$OUT"
 
-# --- Emit a root-relative <head> snippet for installation ---
+# --- Emit a <head> snippet for installation ---
 HEAD="$OUT/.favicon-head.html"
-cat > "$HEAD" <<'HTML'
-<link rel="icon" type="image/x-icon" href="/favicon.ico">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
-<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="manifest" href="/manifest.json">
-HTML
+{
+  echo '<link rel="icon" type="image/x-icon" href="/favicon.ico">'
+  echo '<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">'
+  echo '<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">'
+  echo '<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">'
+  echo '<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">'
+  echo '<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">'
+  if [ "$THEME" = "true" ]; then
+    echo '<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16-light.png" media="(prefers-color-scheme: light)">'
+    echo '<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16-dark.png" media="(prefers-color-scheme: dark)">'
+  fi
+  echo '<link rel="manifest" href="/manifest.json">'
+  if [ "$BADGES" = "true" ]; then
+    cat <<'STAGE'
+
+<!-- Per-stage icons: render the right set off your environment.
+     Production stays clean; staging/dev get a badged icon + their own manifest.
+     Swap the hard-coded tags above for stage-aware logic in your layout, e.g.:
+
+       const isStaging = process.env.NEXT_PUBLIC_APP_ENV === "staging";
+       const isDev     = process.env.NODE_ENV === "development";
+       const prefix    = isDev ? "/dev-" : isStaging ? "/staging-" : "/";
+       const manifest  = isDev ? "/dev-manifest.json"
+                       : isStaging ? "/staging-manifest.json" : "/manifest.json";
+       // <link rel="icon" href={`${prefix}favicon.ico`} />
+       // <link rel="manifest" href={manifest} />
+
+     Staging files: /staging-favicon.ico, /staging-favicon-32x32.png, /staging-manifest.json
+     Dev files:     /dev-favicon.ico, /dev-favicon-32x32.png, /dev-manifest.json
+-->
+STAGE
+  fi
+} > "$HEAD"
 
 echo >&2
-echo "favicon-gen: ✓ wrote $(find "$OUT" -maxdepth 1 -name 'favicon*' -o -maxdepth 1 -name 'apple*' -o -maxdepth 1 -name 'android*' -o -maxdepth 1 -name 'ms-icon*' -o -maxdepth 1 -name 'manifest.json' | wc -l | tr -d ' ') files to $OUT" >&2
+echo "favicon-gen: ✓ wrote $(find "$OUT" -maxdepth 1 \( -name 'favicon*' -o -name 'apple*' -o -name 'android*' -o -name 'ms-icon*' -o -name '*manifest.json' -o -name 'staging-*' -o -name 'dev-*' \) | wc -l | tr -d ' ') files to $OUT" >&2
 echo "favicon-gen: <head> snippet saved to $HEAD — install it as below:" >&2
 echo "----------------------------------------" >&2
 cat "$HEAD" >&2
