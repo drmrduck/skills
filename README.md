@@ -24,6 +24,14 @@ Claude Code, drop the folder into a skills directory:
 
 ### Quick install
 
+Recommended — via the [`skills`](https://skills.sh) CLI:
+
+```bash
+npx skills add https://github.com/drmrduck/skills --skill appicons
+```
+
+Or straight from this repo with curl (no Node):
+
 ```bash
 # Install one skill globally (available in every project on this machine)
 curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s appicons
