@@ -13,6 +13,7 @@ them in) instead of a human clicking a UI, downloading a zip, and shuffling file
 | Skill | What it does |
 | --- | --- |
 | [`appicons`](./appicons) | Generate + install a complete favicon / app-icon / PWA stack (ico, all PNG sizes, apple-touch, theme-aware light/dark, per-environment dev/staging/prod variants, manifest) from an emoji, named icon, logo file, or URL — written straight into the project. Powered by [favicontools.com](https://favicontools.com). |
+| [`scratchpad`](./scratchpad) | Stand up (or extend) an operator-only in-app **scratchpad / test-bed**: a fail-closed gated internal page that reuses your real components and libs so you can eyeball generated visuals, compare variants, check config readiness, and exercise real flows with fake data — bootstrapped into your existing stack, framework-agnostic. Pure pattern, no dependencies. |
 
 ## Pull it in anywhere
 
@@ -72,3 +73,4 @@ Where each skill's capability comes from, and what's public vs. private:
 | Skill | Public surface it uses | Source project |
 | --- | --- | --- |
 | `appicons` | [favicontools.com](https://favicontools.com) — public API `POST https://favicontools.com/api/favicons`; icon/emoji lookup via [Iconify](https://icon-sets.iconify.design) (`https://api.iconify.design`) | `mewc/favicon-generator` — **private** (https://github.com/mewc/favicon-generator). The skill calls only the public website API; no private source is included. |
+| `scratchpad` | None — a pure pattern skill (no API, no script, no dependencies). | Distilled from a private project's scratchpad implementation — **private**. The skill contains **no private source**; the pattern is generic and framework-agnostic. |
