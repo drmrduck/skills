@@ -27,13 +27,20 @@ light/dark pair.
 
 ## Install
 
-Copy this folder into your agent's skills directory:
+Recommended — via the [`skills`](https://skills.sh) CLI (canonical
+`owner/repo@skill` form; add `-g` for every project on this machine):
+
+```bash
+npx skills add drmrduck/skills@appicons
+```
+
+Or copy this folder into your agent's skills directory:
 
 - **Claude Code:** `~/.claude/skills/appicons/` (global) or `.claude/skills/appicons/` (per-project)
 - Other agents: wherever your harness loads skills from.
 
 ```bash
-git clone https://github.com/mewc/skills
+git clone https://github.com/drmrduck/skills
 cp -r skills/appicons ~/.claude/skills/appicons
 chmod +x ~/.claude/skills/appicons/scripts/favicon-gen.sh
 ```

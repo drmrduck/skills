@@ -71,7 +71,7 @@ Copy this folder into your agent's skills directory:
 - Other agents: wherever your harness loads skills from.
 
 ```bash
-npx skills add https://github.com/drmrduck/skills --skill scratchpad
+npx skills add drmrduck/skills@scratchpad
 ```
 
 Or copy it manually:

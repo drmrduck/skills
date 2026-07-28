@@ -28,7 +28,7 @@ Needs `curl`; `jq`/`python3` optional (prettier JSON + encoding).
 ## Install
 
 ```bash
-npx skills add https://github.com/drmrduck/skills --skill download-video
+npx skills add drmrduck/skills@download-video
 # or
 curl -fsSL https://raw.githubusercontent.com/drmrduck/skills/main/install.sh | bash -s download-video
 ```
