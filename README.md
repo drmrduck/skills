@@ -26,11 +26,24 @@ Claude Code, drop the folder into a skills directory:
 
 ### Quick install
 
-Recommended — via the [`skills`](https://skills.sh) CLI:
+Recommended — via the [`skills`](https://skills.sh) CLI. Use the short
+`owner/repo` form (this is the identifier [skills.sh](https://skills.sh) indexes
+and ranks):
 
 ```bash
-npx skills add https://github.com/drmrduck/skills --skill appicons
+# Add every skill in this repo
+npx skills add drmrduck/skills
+
+# …or just one
+npx skills add drmrduck/skills --skill download-video
+
+# Preview what's here without installing
+npx skills add drmrduck/skills --list
 ```
+
+Install globally (every project on this machine) with `-g`, or into the current
+project by default. The full URL form (`npx skills add
+https://github.com/drmrduck/skills --skill appicons`) works too.
 
 Or straight from this repo with curl (no Node):
 
