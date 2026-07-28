@@ -1,0 +1,86 @@
+name: skills-ci
+
+# Proves every skill in this repo is well-formed AND that the published
+# `npx skills add drmrduck/skills@<skill>` install command actually works,
+# then runs the appicons generator end-to-end against favicontools.com.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # 1. Static checks against the checked-out copy (this commit / PR).
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: SKILL.md frontmatter is present + complete
+        run: |
+          set -euo pipefail
+          fail=0
+          for dir in */; do
+            skill="${dir%/}"
+            f="$skill/SKILL.md"
+            [ -f "$f" ] || continue          # only skill folders have a SKILL.md
+            echo "· checking $f"
+            head -1 "$f" | grep -qx -- '---' \
+              || { echo "  ✗ $skill: missing YAML frontmatter opener"; fail=1; }
+            grep -qE "^name:[[:space:]]*$skill\b" "$f" \
+              || { echo "  ✗ $skill: frontmatter name: must equal folder name ($skill)"; fail=1; }
+            grep -qE "^description:" "$f" \
+              || { echo "  ✗ $skill: frontmatter missing description:"; fail=1; }
+          done
+          [ "$fail" = 0 ] && echo "✓ all SKILL.md frontmatter OK"
+          exit $fail
+
+      - name: Helper scripts parse + expose --help
+        run: |
+          set -euo pipefail
+          for s in $(find . -path ./.git -prune -o -name '*.sh' -print); do
+            echo "· bash -n $s"; bash -n "$s"
+          done
+          bash appicons/scripts/favicon-gen.sh --help >/dev/null && echo "✓ favicon-gen.sh --help"
+          bash download-video/scripts/dl.sh --help    >/dev/null && echo "✓ dl.sh --help"
+
+  # 2. The real thing the README tells people to run — must actually install.
+  install-command-works:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        skill: [appicons, scratchpad, download-video]
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: npx skills add drmrduck/skills@${{ matrix.skill }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/proj && cd /tmp/proj
+          npx -y skills add "drmrduck/skills@${{ matrix.skill }}" -y -a claude-code
+          landed="$(find . -path '*/skills/${{ matrix.skill }}/SKILL.md' | head -1)"
+          if [ -z "$landed" ]; then
+            echo "✗ install did not place ${{ matrix.skill }}/SKILL.md"; find . -name SKILL.md; exit 1
+          fi
+          echo "✓ installed ${{ matrix.skill }} → $landed"
+
+  # 3. End-to-end: the appicons script really generates an icon stack.
+  appicons-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate a favicon stack from an Iconify emoji
+        run: |
+          set -euo pipefail
+          bash appicons/scripts/favicon-gen.sh \
+            --source noto:fox --bg white --shape circular --out ./out
+          echo "--- produced ---"; ls -la ./out
+          for want in favicon.ico manifest.json apple-touch-icon.png favicon-32x32.png; do
+            ls ./out | grep -qx "$want" || { echo "✗ missing $want"; exit 1; }
+          done
+          # theme-aware + per-stage variants the skill promises
+          ls ./out | grep -qx favicon-16x16-dark.png  || { echo "✗ missing dark theme favicon"; exit 1; }
+          ls ./out | grep -qx dev-favicon.ico         || { echo "✗ missing dev-stage variant"; exit 1; }
+          echo "✓ appicons produced a complete stack ($(ls ./out | wc -l) files)"
