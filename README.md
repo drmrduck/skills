@@ -13,6 +13,7 @@ them in) instead of a human clicking a UI, downloading a zip, and shuffling file
 | Skill | What it does |
 | --- | --- |
 | [`appicons`](./appicons) | Generate + install a complete favicon / app-icon / PWA stack (ico, all PNG sizes, apple-touch, theme-aware light/dark, per-environment dev/staging/prod variants, manifest) from an emoji, named icon, logo file, or URL — written straight into the project. Powered by [favicontools.com](https://favicontools.com). |
+| [`download-video`](./download-video) | Download a video (or list its direct MP4 URLs) from a **Twitter/X, TikTok, Instagram, or YouTube** post — no login, no watermark, up to 1080p. Auto-routes each link to its platform host; returns direct CDN links + author/caption/metadata, or saves the file straight to disk. Script, REST API, or MCP. Powered by the drummerduck downloader API. |
 | [`scratchpad`](./scratchpad) | Stand up (or extend) an operator-only in-app **scratchpad / test-bed**: a fail-closed gated internal page that reuses your real components and libs so you can eyeball generated visuals, compare variants, check config readiness, and exercise real flows with fake data — bootstrapped into your existing stack, framework-agnostic. Pure pattern, no dependencies. |
 
 ## Pull it in anywhere
@@ -74,3 +75,4 @@ Where each skill's capability comes from, and what's public vs. private:
 | --- | --- | --- |
 | `appicons` | [favicontools.com](https://favicontools.com) — public API `POST https://favicontools.com/api/favicons`; icon/emoji lookup via [Iconify](https://icon-sets.iconify.design) (`https://api.iconify.design`) | `mewc/favicon-generator` — **private** (https://github.com/mewc/favicon-generator). The skill calls only the public website API; no private source is included. |
 | `scratchpad` | None — a pure pattern skill (no API, no script, no dependencies). | Distilled from a private project's scratchpad implementation — **private**. The skill contains **no private source**; the pattern is generic and framework-agnostic. |
+| `download-video` | Public hosted API — `GET\|POST /api/extract`, `GET /api/download`, `POST /api/keys`, MCP at `/api/mcp`, on the four `download-*-video.drummerduck.com` hosts. No auth required to extract. | `mewc/download-x-video` — **private** (the Next.js app behind those hosts). The skill calls only the public website API; no private source, keys, or internal endpoints are included. |
