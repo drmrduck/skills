@@ -16,6 +16,22 @@ them in) instead of a human clicking a UI, downloading a zip, and shuffling file
 | [`download-video`](./download-video) | Download a video (or list its direct MP4 URLs) from a **Twitter/X, TikTok, Instagram, or YouTube** post — no login, no watermark, up to 1080p. Auto-routes each link to its platform host; returns direct CDN links + author/caption/metadata, or saves the file straight to disk. Script, REST API, or MCP. Powered by the drummerduck downloader API. |
 | [`scratchpad`](./scratchpad) | Stand up (or extend) an operator-only in-app **scratchpad / test-bed**: a fail-closed gated internal page that reuses your real components and libs so you can eyeball generated visuals, compare variants, check config readiness, and exercise real flows with fake data — bootstrapped into your existing stack, framework-agnostic. Pure pattern, no dependencies. |
 
+### Drummerduck Tools
+
+Tiny agent-native tools for the boring last-5% dev chores — try any of them live in the browser at **[tools.drummerduck.com](https://tools.drummerduck.com)** (each also on its own subdomain), then let the skill ship it into your repo.
+
+| Skill | What it writes | Try it live |
+| --- | --- | --- |
+| [`aicrawl`](./aicrawl) | A spec-compliant `llms.txt`/`llms-full.txt`, `robots.txt` rules for GPTBot/ClaudeBot/PerplexityBot, and a wired sitemap route — from the repo's real routes. | [aicrawl.tools.drummerduck.com](https://aicrawl.tools.drummerduck.com) |
+| [`ogimage`](./ogimage) | A dynamic `opengraph-image` route + per-page `og:`/`twitter:` tags so links unfurl correctly in Slack/iMessage/X/LinkedIn. | [ogimage.tools.drummerduck.com](https://ogimage.tools.drummerduck.com) |
+| [`metatags`](./metatags) | Correct `<title>`/description/canonical/Open Graph + valid JSON-LD schema on every route. | [metatags.tools.drummerduck.com](https://metatags.tools.drummerduck.com) |
+| [`legalpages`](./legalpages) | Tailored `/privacy` + `/terms` pages and a cookie-consent component, matched to what the app actually does. | [legalpages.tools.drummerduck.com](https://legalpages.tools.drummerduck.com) |
+| [`readme`](./readme) | A real `README.md` (+ a shields.io badge row) generated from the actual repo — scripts, deps, routes. | [readme.tools.drummerduck.com](https://readme.tools.drummerduck.com) |
+| [`pwa`](./pwa) | `manifest.json`, a service worker, an install prompt, and an offline route — the installable-app kit. | [pwa.tools.drummerduck.com](https://pwa.tools.drummerduck.com) |
+| [`themetokens`](./themetokens) | A full light + dark design-token set written into your CSS, from one brand color or a logo. | [themetokens.tools.drummerduck.com](https://themetokens.tools.drummerduck.com) |
+| [`notfound`](./notfound) | Styled 404/500, loading skeletons and empty states matched to the app's design. | [notfound.tools.drummerduck.com](https://notfound.tools.drummerduck.com) |
+| [`backdrop`](./backdrop) | A pointer-reactive hero `FieldCanvas` (dots/flow/bloom/…) dropped into the project as a real component. | [backdrop.tools.drummerduck.com](https://backdrop.tools.drummerduck.com) |
+
 ## Pull it in anywhere
 
 Each skill is a plain directory containing `SKILL.md`. To make it available to
