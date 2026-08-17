@@ -39,8 +39,11 @@ Unattended, agent-first codebase-maintenance skills — the kind you wire into a
 and also fire on demand with `/skill-name`. Each one does the whole job end to
 end: find the problem, fix it at the root, run the project's `/verify`, open one
 small revertible PR (with a repro + **truth table**), and post progress to a
-single top-level thread in the designated Slack channel. Modeled on the
-[Claude Code team's routines](https://x.com/bcherny/status/2088014489438621990).
+single top-level thread in the designated Slack channel.
+
+These are modeled directly on the Claude Code team's daily routines, as described
+by Boris Cherny ([@bcherny](https://x.com/bcherny)) in the original thread:
+**[x.com/bcherny/status/2088014489438621990](https://x.com/bcherny/status/2088014489438621990)**.
 
 | Skill | What it does |
 | --- | --- |
@@ -60,6 +63,11 @@ Every one of these is **behaviour-preserving unless it's explicitly a bugfix**,
 verifies e2e, and ships as one focused PR. They're safe to schedule because they
 prove their work (truth tables, failing-then-passing tests, `/verify`) and report
 to a human thread rather than merging blind.
+
+> Credit: routines described by Boris Cherny / the Claude Code team —
+> [original X thread](https://x.com/bcherny/status/2088014489438621990) ·
+> [@bcherny](https://x.com/bcherny). Packaged as skills by drummerduck —
+> [@drmrduck](https://x.com/drmrduck) · [drummerduck.com/skills](https://drummerduck.com/skills).
 
 ## Pull it in anywhere
 
