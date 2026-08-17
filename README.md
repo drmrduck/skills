@@ -32,6 +32,35 @@ Tiny agent-native tools for the boring last-5% dev chores — try any of them li
 | [`notfound`](./notfound) | Styled 404/500, loading skeletons and empty states matched to the app's design. | [notfound.tools.drummerduck.com](https://notfound.tools.drummerduck.com) |
 | [`backdrop`](./backdrop) | A pointer-reactive hero `FieldCanvas` (dots/flow/bloom/…) dropped into the project as a real component. | [backdrop.tools.drummerduck.com](https://backdrop.tools.drummerduck.com) |
 
+### Daily maintenance routines
+
+Unattended, agent-first codebase-maintenance skills — the kind you wire into a
+**daily scheduled routine per app** (iOS, Android, Desktop, web, CLI, Agent SDK)
+and also fire on demand with `/skill-name`. Each one does the whole job end to
+end: find the problem, fix it at the root, run the project's `/verify`, open one
+small revertible PR (with a repro + **truth table**), and post progress to a
+single top-level thread in the designated Slack channel. Modeled on the
+[Claude Code team's routines](https://x.com/bcherny/status/2088014489438621990).
+
+| Skill | What it does |
+| --- | --- |
+| [`crash-fuzzer`](./crash-fuzzer) | Launches the **real app** (no mocks) in a simulator/emulator/device, fuzzes realistic UI interactions until it crashes, minimizes a seeded repro, root-causes it, and opens a fix PR — with `/verify`, a repro + truth table, and updates in a top-level **Fuzzer** Slack thread. |
+| [`ant-only-shipper`](./ant-only-shipper) | Ships or deletes forgotten internal-only / ant-only features **based on real usage data** — remove the gate for the ones people use, delete the rest end to end. |
+| [`logic-simplifier`](./logic-simplifier) | Simplifies convoluted business logic. **Formally models** it first (decision/truth table, state machine) to expose gaps & duplication, pins edge cases with tests, then refactors to the minimal equivalent — proven `Before ≡ After` e2e. (aka `business-logic-simplifier-daily`) |
+| [`logic-bugfixer`](./logic-bugfixer) | **Models tricky logic** to discover latent bugs (the rows the code got wrong or never handled), fixes the root cause, and proves it with a failing-then-passing test + truth table. (aka `business-logic-bugfixer-daily`) |
+| [`dup-unifier`](./dup-unifier) | Finds similar-yet-divergent implementations, models their behavioural deltas, and merges them into one canonical version — no caller's behaviour silently changes. |
+| [`dead-code-remover`](./dead-code-remover) | Deletes provably-unreachable code now; for *suspected*-dead code, adds temporary "reached here" logging and removes it on a later run if it stayed silent. |
+| [`useless-test-pruner`](./useless-test-pruner) | Deletes tests that **can't fail** (proven via mutation) or otherwise carry no signal; strengthens the salvageable ones. |
+| [`shipped-feature-inliner`](./shipped-feature-inliner) | Removes feature/experiment flags for fully-shipped features — inlines the winning branch, deletes the flag, config, plumbing, and dead branch. |
+| [`flaky-test-fixer`](./flaky-test-fixer) | Root-causes flaky CI tests (time, ordering, races, randomness, shared state) and fixes the nondeterminism at the source — never with retries or sleeps; deletes flaky-and-useless ones. |
+| [`abstraction-improver`](./abstraction-improver) | Flattens over-engineered abstractions — one-impl interfaces, pass-through wrappers, speculative generality — back to the simplest equivalent code. |
+| [`abstraction-police`](./abstraction-police) | Fixes leaky abstractions and layering violations (UI touching the DB, domain importing HTTP, upward/cyclic deps) and adds an architecture guard so they can't re-leak. |
+
+Every one of these is **behaviour-preserving unless it's explicitly a bugfix**,
+verifies e2e, and ships as one focused PR. They're safe to schedule because they
+prove their work (truth tables, failing-then-passing tests, `/verify`) and report
+to a human thread rather than merging blind.
+
 ## Pull it in anywhere
 
 Each skill is a plain directory containing `SKILL.md`. To make it available to
@@ -109,3 +138,4 @@ Where each skill's capability comes from, and what's public vs. private:
 | `appicons` | [favicontools.com](https://favicontools.com) — public API `POST https://favicontools.com/api/favicons`; icon/emoji lookup via [Iconify](https://icon-sets.iconify.design) (`https://api.iconify.design`) | `mewc/favicon-generator` — **private** (https://github.com/mewc/favicon-generator). The skill calls only the public website API; no private source is included. |
 | `scratchpad` | None — a pure pattern skill (no API, no script, no dependencies). | Distilled from a private project's scratchpad implementation — **private**. The skill contains **no private source**; the pattern is generic and framework-agnostic. |
 | `download-video` | Public hosted API — `GET\|POST /api/extract`, `GET /api/download`, `POST /api/keys`, MCP at `/api/mcp`, on the four `download-*-video.drummerduck.com` hosts. No auth required to extract. | `mewc/download-x-video` — **private** (the Next.js app behind those hosts). The skill calls only the public website API; no private source, keys, or internal endpoints are included. |
+| Daily maintenance routines (`crash-fuzzer`, `ant-only-shipper`, `logic-simplifier`, `logic-bugfixer`, `dup-unifier`, `dead-code-remover`, `useless-test-pruner`, `shipped-feature-inliner`, `flaky-test-fixer`, `abstraction-improver`, `abstraction-police`) | None — pure process/pattern skills (no API, no bundled code). They drive tools the target repo already has: its build, tests, `/verify`, analytics/flag platform, and Slack. | Distilled from the **public** description of the Claude Code team's routines by Boris Cherny — [x.com/bcherny/status/2088014489438621990](https://x.com/bcherny/status/2088014489438621990). No private source, keys, or internal endpoints are included; Slack channels and commands are configured per repo. |
