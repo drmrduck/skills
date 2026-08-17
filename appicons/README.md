@@ -25,6 +25,11 @@ By default, the **full per-stage set**:
 Pass `--no-badges` for a single plain icon, or `--no-theme-aware` to skip the
 light/dark pair.
 
+Add `--docs` (optionally `--docs-border accent|contrast|white|#hex`) to also
+emit an outlined **docs-subdomain** set — `docs-*` files + `docs-manifest.json`,
+the same mark wrapped in a coloured ring so `docs.site.com` tabs are tellable
+from the app's.
+
 ## Install
 
 Recommended — via the [`skills`](https://skills.sh) CLI (canonical

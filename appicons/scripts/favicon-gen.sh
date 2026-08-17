@@ -31,6 +31,9 @@
 #   --primary <#hex>               Primary color for color/badge variants
 #   --no-badges        Single production icon only — skip dev/staging variants
 #   --no-theme-aware   Skip the light/dark theme-aware 16x16 favicons
+#   --docs             Also emit an outlined docs-* icon set (+ docs-manifest.json)
+#                        so a docs subdomain (docs.site.com) is tellable from the app
+#   --docs-border <accent|contrast|white|#hex>   Docs outline colour (default: accent)
 #   --api <url>        Override API endpoint (default: $FAVICON_API or favicontools.com)
 #   -h, --help         Show this help
 #
@@ -42,6 +45,8 @@ SOURCE=""
 BG="none"; SHAPE="square"; VARIANT="badge"; PRIMARY=""
 # Default ON: pull back per-stage variants + theme-aware favicons.
 THEME="true"; BADGES="true"
+# Docs outline variant is OFF by default — opt-in for a docs subdomain.
+DOCS="false"; DOCS_BORDER="accent"
 
 die() { echo "favicon-gen: $*" >&2; exit 1; }
 
@@ -57,8 +62,10 @@ while [ $# -gt 0 ]; do
     --no-badges) BADGES="false"; VARIANT="none"; shift;;
     --theme-aware) THEME="true"; shift;;
     --no-theme-aware) THEME="false"; shift;;
+    --docs) DOCS="true"; shift;;
+    --docs-border) DOCS="true"; DOCS_BORDER="${2:-}"; shift 2;;
     --api) API="${2:-}"; shift 2;;
-    -h|--help) sed -n '2,46p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
+    -h|--help) sed -n '2,49p' "$0" | sed 's/^# \{0,1\}//'; exit 0;;
     *) die "unknown argument: $1 (try --help)";;
   esac
 done
@@ -118,7 +125,7 @@ fi
 
 # --- Build payload + call the API ---
 payload="$(cat <<JSON
-{"image":"$DATAURL","backgroundColor":"$BG","backgroundShape":"$SHAPE","variantType":"$VARIANT","includeDevVariations":$BADGES,"includeThemeAwareFavicon":$THEME$( [ -n "$PRIMARY" ] && printf ',"primaryColor":"%s"' "$PRIMARY" )}
+{"image":"$DATAURL","backgroundColor":"$BG","backgroundShape":"$SHAPE","variantType":"$VARIANT","includeDevVariations":$BADGES,"includeThemeAwareFavicon":$THEME$( [ -n "$PRIMARY" ] && printf ',"primaryColor":"%s"' "$PRIMARY" )$( [ "$DOCS" = "true" ] && printf ',"docsVariant":true,"docsBorderColor":"%s"' "$DOCS_BORDER" )}
 JSON
 )"
 
@@ -167,10 +174,24 @@ HEAD="$OUT/.favicon-head.html"
 -->
 STAGE
   fi
+  if [ "$DOCS" = "true" ]; then
+    cat <<'DOCS'
+
+<!-- Docs subdomain (docs.site.com) — outlined icon set.
+     Serve these under the docs host, or switch by hostname server-side:
+       const isDocs = req.headers.host?.startsWith("docs.");
+       const prefix = isDocs ? "/docs-" : "/";
+       // <link rel="icon" href={`${prefix}favicon.ico`} />
+       // <link rel="manifest" href={isDocs ? "/docs-manifest.json" : "/manifest.json"} />
+
+     Docs files: /docs-favicon.ico, /docs-favicon-32x32.png, /docs-apple-touch-icon.png, /docs-manifest.json
+-->
+DOCS
+  fi
 } > "$HEAD"
 
 echo >&2
-echo "favicon-gen: ✓ wrote $(find "$OUT" -maxdepth 1 \( -name 'favicon*' -o -name 'apple*' -o -name 'android*' -o -name 'ms-icon*' -o -name '*manifest.json' -o -name 'staging-*' -o -name 'dev-*' \) | wc -l | tr -d ' ') files to $OUT" >&2
+echo "favicon-gen: ✓ wrote $(find "$OUT" -maxdepth 1 \( -name 'favicon*' -o -name 'apple*' -o -name 'android*' -o -name 'ms-icon*' -o -name '*manifest.json' -o -name 'staging-*' -o -name 'dev-*' -o -name 'docs-*' \) | wc -l | tr -d ' ') files to $OUT" >&2
 echo "favicon-gen: <head> snippet saved to $HEAD — install it as below:" >&2
 echo "----------------------------------------" >&2
 cat "$HEAD" >&2

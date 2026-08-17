@@ -4,7 +4,8 @@ description: >-
   Generate and install a complete favicon / app-icon / PWA-icon stack directly
   into a project — favicon.ico, every PNG size, apple-touch-icon, Android icons,
   theme-aware light/dark favicons, per-environment (dev/staging/prod) variants,
-  and manifest.json — from an emoji, a named icon, a logo file, or an image URL.
+  an optional outlined docs-subdomain variant, and manifest.json — from an emoji,
+  a named icon, a logo file, or an image URL.
   No browser, no zip download, no manual unzip: files land in the repo and the
   <head> gets patched. Use whenever a user wants a favicon, site icon, tab icon,
   app icon, or PWA icons, or says "make me a favicon", "add a favicon", "add app
@@ -69,6 +70,8 @@ Pick `--out` to match the framework's static dir (see Step 3). Options:
 - `--variant badge|color` + `--primary "#7c3aed"` — how staging/dev are marked. `badge` (default) adds a corner S/D letter; `color` tints them from `--primary`.
 - `--no-badges` — single production icon only (skip dev/staging variants).
 - `--no-theme-aware` — skip the light/dark 16×16 favicons.
+- `--docs` — **also** emit an outlined `docs-*` icon set (+ `docs-manifest.json`) so a documentation subdomain (`docs.site.com`) is tellable from the main app in the tab bar. Off by default; add it when the project has (or plans) a docs subdomain.
+- `--docs-border accent|contrast|white|#hex` — colour of the docs outline ring. `accent` (default) pulls a hue from the artwork, `contrast` picks black/white for max legibility, `white` is a plain frame, or pass a custom hex. Implies `--docs`.
 
 Examples:
 ```bash
@@ -81,14 +84,18 @@ scripts/favicon-gen.sh --source ./public/logo.svg --out ./public
 # Brand mark, color-tinted stage variants instead of letter badges
 scripts/favicon-gen.sh --source simple-icons:react --variant color --primary "#61dafb" --out ./public
 
+# Add a docs-subdomain variant with a contrast outline
+scripts/favicon-gen.sh --source ./public/logo.svg --docs --docs-border contrast --out ./public
+
 # Just a single plain icon, no stages
 scripts/favicon-gen.sh --source ./logo.png --no-badges --out ./public
 ```
 
 The script writes the icon files (`favicon.ico`, `favicon-16/32/48/96`,
 `apple-touch-icon.png`, `android-icon-192x192.png`, `manifest.json`, theme
-variants, and `staging-*`/`dev-*` + `staging-manifest.json`/`dev-manifest.json`
-when stages are on) into `--out`, and prints a `<head>` snippet, also saved to
+variants, `staging-*`/`dev-*` + `staging-manifest.json`/`dev-manifest.json`
+when stages are on, and `docs-*` + `docs-manifest.json` when `--docs` is on)
+into `--out`, and prints a `<head>` snippet, also saved to
 `<out>/.favicon-head.html`.
 
 ## Step 3 — Install the tags (framework-aware)
@@ -143,10 +150,32 @@ dir too, and suffix each manifest's `name`/`short_name` per stage, e.g.
 `"Acme"`, `"Acme (Staging)"`, `"Acme (Dev)"`. Set `start_url` to the page users
 should land on (`/` for marketing, `/dashboard` for admin apps).
 
+## Step 3.6 — Wire up the docs subdomain (when `--docs` is on)
+
+The `docs-*` files are a parallel, production set — the same mark wrapped in a
+coloured outline, named "Docs" in `docs-manifest.json`. Serve them on the
+documentation host so its tabs are tellable from the app's:
+
+- **Docs is its own deploy** (own repo/site) → the `docs-*` files are simply its
+  normal favicon set. Reference `docs-favicon.ico` / `docs-favicon-32x32.png` /
+  `docs-apple-touch-icon.png` / `docs-manifest.json` from its `<head>`.
+- **App and docs share one deploy** → switch by hostname server-side so the right
+  set ships in the initial HTML:
+  ```tsx
+  const isDocs = host.startsWith("docs.");
+  const prefix = isDocs ? "/docs-" : "/";
+  // <link rel="icon" href={`${prefix}favicon.ico`} />
+  // <link rel="manifest" href={isDocs ? "/docs-manifest.json" : "/manifest.json"} />
+  ```
+
+Docs and stages are independent — you can run both (a `docs-` set on the docs
+host, badged `staging-`/`dev-` on the app).
+
 ## Step 4 — Verify
 - Confirm the files exist in the static dir (at minimum `favicon.ico`,
   `favicon-32x32.png`, `apple-touch-icon.png`, `manifest.json` — plus the
-  `staging-*`/`dev-*` files when stages are on).
+  `staging-*`/`dev-*` files when stages are on, and `docs-*` + `docs-manifest.json`
+  when `--docs` is on).
 - Confirm the `<head>` (or layout metadata) references them, and that the
   stage logic resolves to the right files.
 - Report the coverage (which sizes/variants/stages were produced) to the user.
@@ -167,7 +196,9 @@ instead of this script:
 ```
 It exposes `search_inputs` and `generate_iconset`; `generate_iconset` also
 returns per-stage variants and a stage-aware head snippet by default, then
-hands back CDN URLs for every file. Use whichever fits the environment.
+hands back CDN URLs for every file. Pass `docsVariant: true` (and optionally
+`docsBorderColor: "accent" | "contrast" | "white" | "#hex"`) to also get the
+outlined `docs-*` set + `docs-manifest.json`. Use whichever fits the environment.
 
 ## Provenance
 - Generation API: `POST https://favicontools.com/api/favicons` (public, no auth).
