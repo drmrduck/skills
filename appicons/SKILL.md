@@ -71,6 +71,7 @@ Pick `--out` to match the framework's static dir (see Step 3). Options:
 - `--no-badges` — single production icon only (skip dev/staging variants).
 - `--no-theme-aware` — skip the light/dark 16×16 favicons.
 - `--docs` — **also** emit an outlined `docs-*` icon set (+ `docs-manifest.json`) so a documentation subdomain (`docs.site.com`) is tellable from the main app in the tab bar. Off by default; add it when the project has (or plans) a docs subdomain.
+- `--size N|WxH` — **also** export an exact size a platform demands, e.g. `--size 255` for Adobe's 255×255 or `--size 300x150`. Repeatable (max 12, 16–4096px); each lands as `icon-WxH.png`. Production-only — not in the `<head>` or manifest. Use it whenever the user names a specific pixel size.
 - `--docs-border accent|contrast|white|#hex` — colour of the docs outline ring. `accent` (default) pulls a hue from the artwork, `contrast` picks black/white for max legibility, `white` is a plain frame, or pass a custom hex. Implies `--docs`.
 
 Examples:
@@ -194,11 +195,12 @@ instead of this script:
 ```json
 { "mcpServers": { "favicontools": { "type": "http", "url": "https://favicontools.com/api/mcp" } } }
 ```
-It exposes `search_inputs` and `generate_iconset`; `generate_iconset` also
+It exposes `search_icons`, `check_favicon` and `generate_iconset`; `generate_iconset` also
 returns per-stage variants and a stage-aware head snippet by default, then
 hands back CDN URLs for every file. Pass `docsVariant: true` (and optionally
 `docsBorderColor: "accent" | "contrast" | "white" | "#hex"`) to also get the
-outlined `docs-*` set + `docs-manifest.json`. Use whichever fits the environment.
+outlined `docs-*` set + `docs-manifest.json`, and `customSizes: [255, "300x150"]`
+for exact sizes a platform demands. Use whichever fits the environment.
 
 ## Provenance
 - Generation API: `POST https://favicontools.com/api/favicons` (public, no auth).
